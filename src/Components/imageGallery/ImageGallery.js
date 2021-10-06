@@ -10,10 +10,16 @@ import { toast } from "react-toastify";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 
-const initialState = { page: 1, gallery: [], isLoading: false, totalPage: 1 };
+const initialStateGallery = {
+  page: 1,
+  gallery: [],
+  totalPage: 1,
+};
+const initialStateLoading = { isLoading: false };
 
 const ImageGallery = ({ searchQuery, toggleModal }) => {
-  const [state, setState] = useState(initialState);
+  const [gallery, setGallery] = useState(initialStateGallery);
+  const [loading, setLoading] = useState(initialStateLoading);
 
   useEffect(() => {
     if (searchQuery === "") {
@@ -24,36 +30,37 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
       const data = await getGallery(1, searchQuery.trim(""));
       return data;
     }
-    setState((prev) => ({ ...prev, page: 1, isLoading: true, gallery: [] }));
+    setGallery((prev) => ({ ...prev, page: 1, gallery: [] }));
+    setLoading((prev) => ({ ...prev, isLoading: true }));
 
     fetchData().then((data) => {
       const galleryList = data.normalizeData;
-      setState((prev) => ({
+      setGallery((prev) => ({
         ...prev,
         gallery: galleryList,
-        isLoading: false,
         total: data.total,
         totalPage: Math.ceil(data.total / 12),
       }));
+      setLoading((prev) => ({ ...prev, isLoading: false }));
       if (galleryList.length === 0) {
         toast.error("Please enter valid search query");
-        setState((prev) => ({ ...prev, totalPage: 1 }));
+        setGallery((prev) => ({ ...prev, totalPage: 1 }));
         return;
       }
     });
   }, [searchQuery]);
 
   const onLoadMoreClick = async () => {
-    setState((prev) => ({ ...prev, isLoading: true }));
-    const data = await getGallery(state.page + 1, searchQuery.trim(""));
+    setLoading((prev) => ({ ...prev, isLoading: true }));
+    const data = await getGallery(gallery.page + 1, searchQuery.trim(""));
     const galleryList = data.normalizeData;
 
-    setState((prev) => ({
+    setGallery((prev) => ({
       ...prev,
-      page: state.page + 1,
-      gallery: [...state.gallery, ...galleryList],
-      isLoading: false,
+      page: gallery.page + 1,
+      gallery: [...gallery.gallery, ...galleryList],
     }));
+    setLoading((prev) => ({ ...prev, isLoading: false }));
 
     window.scrollTo({
       top: document.documentElement.scrollHeight,
@@ -64,7 +71,7 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
   return (
     <>
       <SearchGalleryList>
-        {state.gallery.map((item) => (
+        {gallery.gallery.map((item) => (
           <ImageGalleryItem
             key={item.id}
             image={item}
@@ -72,12 +79,12 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
           />
         ))}
       </SearchGalleryList>
-      {state.isLoading && (
+      {loading.isLoading && (
         <LoaderContainer>
           <Loader type="Oval" color="#3f51b5" height={40} width={40} />
         </LoaderContainer>
       )}
-      {state.page !== state.totalPage && !state.isLoading && (
+      {gallery.page !== gallery.totalPage && !loading.isLoading && (
         <Button type="button" onClick={onLoadMoreClick} className="Button">
           Load More
         </Button>
