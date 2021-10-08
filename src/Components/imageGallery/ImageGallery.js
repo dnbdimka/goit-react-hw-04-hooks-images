@@ -15,11 +15,10 @@ const initialStateGallery = {
   gallery: [],
   totalPage: 1,
 };
-const initialStateLoading = { isLoading: false };
 
 const ImageGallery = ({ searchQuery, toggleModal }) => {
   const [gallery, setGallery] = useState(initialStateGallery);
-  const [loading, setLoading] = useState(initialStateLoading);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (searchQuery === "") {
@@ -31,7 +30,7 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
       return data;
     }
     setGallery((prev) => ({ ...prev, page: 1, gallery: [] }));
-    setLoading((prev) => ({ ...prev, isLoading: true }));
+    setLoading((prev) => !prev);
 
     fetchData().then((data) => {
       const galleryList = data.normalizeData;
@@ -41,7 +40,7 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
         total: data.total,
         totalPage: Math.ceil(data.total / 12),
       }));
-      setLoading((prev) => ({ ...prev, isLoading: false }));
+      setLoading((prev) => !prev);
       if (galleryList.length === 0) {
         toast.error("Please enter valid search query");
         setGallery((prev) => ({ ...prev, totalPage: 1 }));
@@ -51,7 +50,7 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
   }, [searchQuery]);
 
   const onLoadMoreClick = async () => {
-    setLoading((prev) => ({ ...prev, isLoading: true }));
+    setLoading((prev) => !prev);
     const data = await getGallery(gallery.page + 1, searchQuery.trim(""));
     const galleryList = data.normalizeData;
 
@@ -60,7 +59,7 @@ const ImageGallery = ({ searchQuery, toggleModal }) => {
       page: gallery.page + 1,
       gallery: [...gallery.gallery, ...galleryList],
     }));
-    setLoading((prev) => ({ ...prev, isLoading: false }));
+    setLoading((prev) => !prev);
 
     window.scrollTo({
       top: document.documentElement.scrollHeight,

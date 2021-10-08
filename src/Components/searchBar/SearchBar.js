@@ -2,23 +2,23 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { SearchbarHeader } from "./SearchBarStyled";
 
-const initialState = { searchQuery: "" };
+// const initialState = { searchQuery: "" };
 
 const SearchBar = ({ onSubmit }) => {
-  const [state, setState] = useState(initialState);
+  const [state, setState] = useState("");
 
   const handleInputChange = (e) => {
-    const { value, name } = e.target;
-    setState((prev) => ({ ...prev, [name]: value }));
+    const { value } = e.target;
+    setState(value);
   };
 
   const handelSubmit = (e) => {
     e.preventDefault();
-    if (state.searchQuery.trim("") === "") {
+    if (state.trim("") === "") {
       toast.error("Enter search query");
       return;
     }
-    onSubmit(state.searchQuery);
+    onSubmit(state);
   };
 
   return (
@@ -30,7 +30,7 @@ const SearchBar = ({ onSubmit }) => {
 
         <input
           onChange={handleInputChange}
-          value={state.searchQuery}
+          value={state}
           name="searchQuery"
           className="SearchForm-input"
           type="text"

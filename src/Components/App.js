@@ -5,30 +5,29 @@ import Searchbar from "./searchBar/SearchBar";
 import ImageGallery from "./imageGallery/ImageGallery";
 import Modal from "./modal/Modal";
 
-const initialState = {
+const initialStateQuery = {
   searchQuery: "",
-  isModalOpen: false,
   bigImg: "",
 };
 
 const App = () => {
-  const [state, setState] = useState(initialState);
+  const [query, setQuery] = useState(initialStateQuery);
+  const [modal, setModalOpen] = useState(false);
 
   const onSubmitSearch = (searchInput) => {
-    setState((prev) => ({ ...prev, searchQuery: searchInput }));
+    setQuery((prev) => ({ ...prev, searchQuery: searchInput }));
   };
 
   const toggleModal = (bigImg) => {
-    setState((prev) => ({ ...prev, isModalOpen: !prev.isModalOpen, bigImg }));
+    setQuery((prev) => ({ ...prev, bigImg }));
+    setModalOpen((prev) => !prev);
   };
   return (
     <>
       <Searchbar onSubmit={onSubmitSearch} />
-      <ImageGallery searchQuery={state.searchQuery} toggleModal={toggleModal} />
+      <ImageGallery searchQuery={query.searchQuery} toggleModal={toggleModal} />
       <ToastContainer theme="colored" autoClose={3000} />
-      {state.isModalOpen && (
-        <Modal image={state.bigImg} toggleModal={toggleModal} />
-      )}
+      {modal && <Modal image={query.bigImg} toggleModal={toggleModal} />}
     </>
   );
 };
